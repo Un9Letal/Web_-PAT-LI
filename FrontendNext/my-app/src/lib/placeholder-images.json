@@ -1,0 +1,480 @@
+{
+  "placeholderImages": [
+
+    /* ── CABALLEROS ── */
+    {
+      "id": "polo-pima-blanco",
+      "description": "Polo Algodón Pima Premium Blanco",
+      "imageUrl": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=800&fit=crop",
+      "imageHint": "white polo shirt men",
+      "category": "Caballeros",
+      "price": 45
+    },
+    {
+      "id": "polo-pima-negro",
+      "description": "Polo Pima Cuello V Negro",
+      "imageUrl": "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=600&h=800&fit=crop",
+      "imageHint": "black v-neck polo men",
+      "category": "Caballeros",
+      "price": 48
+    },
+    {
+      "id": "polo-pima-azul",
+      "description": "Polo Pima Classic Azul Marino",
+      "imageUrl": "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600&h=800&fit=crop",
+      "imageHint": "navy blue polo shirt",
+      "category": "Caballeros",
+      "price": 45
+    },
+    {
+      "id": "polo-oversize-gris",
+      "description": "Polo Oversize Básico Gris",
+      "imageUrl": "https://images.unsplash.com/photo-1562157873-818bc0726f68?w=600&h=800&fit=crop",
+      "imageHint": "grey oversized tshirt men",
+      "category": "Caballeros",
+      "price": 55
+    },
+    {
+      "id": "polo-rayas-nautico",
+      "description": "Polo Rayas Náutico Azul/Blanco",
+      "imageUrl": "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=600&h=800&fit=crop",
+      "imageHint": "striped polo shirt men",
+      "category": "Caballeros",
+      "price": 52
+    },
+    {
+      "id": "camisa-lino-caballero",
+      "description": "Camisa Lino Manga Larga Beige",
+      "imageUrl": "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600&h=800&fit=crop",
+      "imageHint": "linen shirt men beige",
+      "category": "Caballeros",
+      "price": 85
+    },
+    {
+      "id": "camisa-oxford-cuadros",
+      "description": "Camisa Oxford Cuadros Slim",
+      "imageUrl": "https://images.unsplash.com/photo-1607345366928-199ea26cfe3e?w=600&h=800&fit=crop",
+      "imageHint": "plaid oxford shirt men",
+      "category": "Caballeros",
+      "price": 78
+    },
+    {
+      "id": "jean-skinny-azul",
+      "description": "Jean Skinny Azul Ica",
+      "imageUrl": "https://images.unsplash.com/photo-1542272604-787c3835535d?w=600&h=800&fit=crop",
+      "imageHint": "skinny jeans men blue",
+      "category": "Caballeros",
+      "price": 95
+    },
+    {
+      "id": "jean-slim-oscuro",
+      "description": "Jean Slim Fit Azul Oscuro",
+      "imageUrl": "https://images.unsplash.com/photo-1475178626620-a4d074967452?w=600&h=800&fit=crop",
+      "imageHint": "dark slim jeans men",
+      "category": "Caballeros",
+      "price": 105
+    },
+    {
+      "id": "pantalon-drill-camel",
+      "description": "Pantalón Drill Camel Clásico",
+      "imageUrl": "https://images.unsplash.com/photo-1594938298603-c8148c4b4357?w=600&h=800&fit=crop",
+      "imageHint": "camel chino pants men",
+      "category": "Caballeros",
+      "price": 88
+    },
+    {
+      "id": "short-cargo-beige",
+      "description": "Short Cargo Multi-bolsillos Beige",
+      "imageUrl": "https://images.unsplash.com/photo-1565084888279-aca607ecce0c?w=600&h=800&fit=crop",
+      "imageHint": "cargo shorts men beige",
+      "category": "Caballeros",
+      "price": 62
+    },
+    {
+      "id": "casaca-bomber-negra",
+      "description": "Casaca Bomber Premium Negra",
+      "imageUrl": "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&h=800&fit=crop",
+      "imageHint": "black bomber jacket men",
+      "category": "Caballeros",
+      "price": 195
+    },
+    {
+      "id": "jogger-gris-caballero",
+      "description": "Jogger Cómodo Algodón Gris",
+      "imageUrl": "https://images.unsplash.com/photo-1608228088998-57828365d486?w=600&h=800&fit=crop",
+      "imageHint": "grey jogger pants men",
+      "category": "Caballeros",
+      "price": 72
+    },
+
+    /* ── DAMAS ── */
+    {
+      "id": "vestido-lino-floral",
+      "description": "Vestido Lino Floral Verano",
+      "imageUrl": "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=600&h=800&fit=crop",
+      "imageHint": "floral linen dress women summer",
+      "category": "Damas",
+      "price": 85
+    },
+    {
+      "id": "vestido-midi-elegante",
+      "description": "Vestido Midi Elegante Crema",
+      "imageUrl": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&h=800&fit=crop",
+      "imageHint": "elegant midi dress women cream",
+      "category": "Damas",
+      "price": 120
+    },
+    {
+      "id": "vestido-mini-estampado",
+      "description": "Vestido Mini Estampado Verano",
+      "imageUrl": "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=600&h=800&fit=crop",
+      "imageHint": "mini summer dress women pattern",
+      "category": "Damas",
+      "price": 75
+    },
+    {
+      "id": "vestido-maxi-boho",
+      "description": "Vestido Maxi Boho Turquesa",
+      "imageUrl": "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=600&h=800&fit=crop",
+      "imageHint": "maxi boho dress women turquoise",
+      "category": "Damas",
+      "price": 135
+    },
+    {
+      "id": "blusa-seda-elegante",
+      "description": "Blusa Seda Elegante Marfil",
+      "imageUrl": "https://images.unsplash.com/photo-1564257631407-4deb1f99d992?w=600&h=800&fit=crop",
+      "imageHint": "silk blouse women ivory",
+      "category": "Damas",
+      "price": 65
+    },
+    {
+      "id": "blusa-floral-manga-corta",
+      "description": "Blusa Floral Manga Corta Rosa",
+      "imageUrl": "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=600&h=800&fit=crop",
+      "imageHint": "floral short sleeve blouse women pink",
+      "category": "Damas",
+      "price": 58
+    },
+    {
+      "id": "blusa-sin-mangas-premium",
+      "description": "Blusa Sin Mangas Premium Coral",
+      "imageUrl": "https://images.unsplash.com/photo-1551163943-3f7b40cde8b3?w=600&h=800&fit=crop",
+      "imageHint": "sleeveless top women coral",
+      "category": "Damas",
+      "price": 55
+    },
+    {
+      "id": "falda-plisada-colores",
+      "description": "Falda Plisada Midi Colores",
+      "imageUrl": "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?w=600&h=800&fit=crop",
+      "imageHint": "colorful pleated midi skirt women",
+      "category": "Damas",
+      "price": 68
+    },
+    {
+      "id": "conjunto-top-pantalon",
+      "description": "Conjunto Top + Pantalón Lino",
+      "imageUrl": "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&h=800&fit=crop",
+      "imageHint": "linen set top pants women",
+      "category": "Damas",
+      "price": 155
+    },
+    {
+      "id": "jumpsuit-casual-verde",
+      "description": "Jumpsuit Casual Lino Verde",
+      "imageUrl": "https://images.unsplash.com/photo-1548624313-0396c75e4b1a?w=600&h=800&fit=crop",
+      "imageHint": "casual linen jumpsuit women green",
+      "category": "Damas",
+      "price": 145
+    },
+    {
+      "id": "blazer-entallado-negro",
+      "description": "Blazer Entallado Elegante Negro",
+      "imageUrl": "https://images.unsplash.com/photo-1594938374182-a57d4aab4e93?w=600&h=800&fit=crop",
+      "imageHint": "fitted black blazer women",
+      "category": "Damas",
+      "price": 185
+    },
+    {
+      "id": "pantalon-palazzo-blanco",
+      "description": "Pantalón Palazzo Fluido Blanco",
+      "imageUrl": "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&h=800&fit=crop",
+      "imageHint": "white palazzo wide leg pants women",
+      "category": "Damas",
+      "price": 92
+    },
+    {
+      "id": "casaca-cuero-dama",
+      "description": "Casaca Cuero Sintético Mujer",
+      "imageUrl": "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&h=800&fit=crop",
+      "imageHint": "leather jacket women black",
+      "category": "Damas",
+      "price": 180
+    },
+
+    /* ── NIÑOS ── */
+    {
+      "id": "conjunto-algodon-kids",
+      "description": "Conjunto Algodón Kids Azul",
+      "imageUrl": "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?w=600&h=800&fit=crop",
+      "imageHint": "kids cotton set blue",
+      "category": "Niños",
+      "price": 55
+    },
+    {
+      "id": "polera-capucha-junior",
+      "description": "Polera con Capucha Junior",
+      "imageUrl": "https://images.unsplash.com/photo-1519278409-1f56fdda7fe5?w=600&h=800&fit=crop",
+      "imageHint": "kids hoodie sweatshirt",
+      "category": "Niños",
+      "price": 49
+    },
+    {
+      "id": "vestidito-floral-nina",
+      "description": "Vestidito Floral Niña Rosa",
+      "imageUrl": "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?w=600&h=800&fit=crop",
+      "imageHint": "girl floral dress pink",
+      "category": "Niños",
+      "price": 52
+    },
+    {
+      "id": "jean-jogger-nino",
+      "description": "Jean Jogger Niño Azul",
+      "imageUrl": "https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?w=600&h=800&fit=crop",
+      "imageHint": "boy jogger jeans blue",
+      "category": "Niños",
+      "price": 58
+    },
+    {
+      "id": "set-verano-ninos",
+      "description": "Set Verano 2 Piezas Colores",
+      "imageUrl": "https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?w=600&h=800&fit=crop",
+      "imageHint": "kids summer set colorful",
+      "category": "Niños",
+      "price": 65
+    },
+    {
+      "id": "polito-cuello-ninos",
+      "description": "Polito Cuello Redondo Pima Kids",
+      "imageUrl": "https://images.unsplash.com/photo-1555009393-f20bdb245c4d?w=600&h=800&fit=crop",
+      "imageHint": "kids round neck polo shirt",
+      "category": "Niños",
+      "price": 35
+    },
+    {
+      "id": "vestidito-lunares-rosa",
+      "description": "Vestidito Lunares Rosa Niña",
+      "imageUrl": "https://images.unsplash.com/photo-1526887593587-4bfc35dd8ea3?w=600&h=800&fit=crop",
+      "imageHint": "girl polka dot dress pink",
+      "category": "Niños",
+      "price": 48
+    },
+    {
+      "id": "conjunto-deportivo-junior",
+      "description": "Conjunto Deportivo Junior",
+      "imageUrl": "https://images.unsplash.com/photo-1604671801908-6f0c6a092c05?w=600&h=800&fit=crop",
+      "imageHint": "kids sports set tracksuit",
+      "category": "Niños",
+      "price": 72
+    },
+
+    /* ── BEBÉS ── */
+    {
+      "id": "mameluco-algodon-bebe",
+      "description": "Mameluco Algodón Suave Bebé",
+      "imageUrl": "https://images.unsplash.com/photo-1522771930-78848d9293e8?w=600&h=800&fit=crop",
+      "imageHint": "baby cotton onesie romper",
+      "category": "Bebés",
+      "price": 38
+    },
+    {
+      "id": "set-bodies-bebe",
+      "description": "Set Bodies x3 Unisex Bebe",
+      "imageUrl": "https://images.unsplash.com/photo-1586015555751-63bb77f4322a?w=600&h=800&fit=crop",
+      "imageHint": "baby bodies set white pastel",
+      "category": "Bebés",
+      "price": 55
+    },
+    {
+      "id": "pijama-bebe-estampada",
+      "description": "Pijama Bebé Estampado Ositos",
+      "imageUrl": "https://images.unsplash.com/photo-1620138546344-7b2c38516edf?w=600&h=800&fit=crop",
+      "imageHint": "baby pajamas bears print",
+      "category": "Bebés",
+      "price": 42
+    },
+    {
+      "id": "set-patitos-bebe",
+      "description": "Set Completo Patitos Amarillo",
+      "imageUrl": "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=600&h=800&fit=crop",
+      "imageHint": "baby duck yellow outfit set",
+      "category": "Bebés",
+      "price": 68
+    },
+    {
+      "id": "gorrito-punto-bebe",
+      "description": "Gorrito de Punto Recién Nacido",
+      "imageUrl": "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=600&h=800&fit=crop",
+      "imageHint": "newborn knit hat beanie",
+      "category": "Bebés",
+      "price": 22
+    },
+    {
+      "id": "ajuar-bebe-completo",
+      "description": "Ajuar Bebé Completo 5 Piezas",
+      "imageUrl": "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=600&h=800&fit=crop",
+      "imageHint": "complete baby layette set newborn",
+      "category": "Bebés",
+      "price": 95
+    },
+
+    /* ── DEPORTIVO ── */
+    {
+      "id": "polo-running-hombre",
+      "description": "Polo Running Dri-Fit Hombre",
+      "imageUrl": "https://images.unsplash.com/photo-1556906781-9a412961a28b?w=600&h=800&fit=crop",
+      "imageHint": "running polo shirt men sport",
+      "category": "Deportivo",
+      "price": 58
+    },
+    {
+      "id": "leggings-deportivos-mujer",
+      "description": "Leggings Deportivos Mujer Negro",
+      "imageUrl": "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&h=800&fit=crop",
+      "imageHint": "sports leggings women black gym",
+      "category": "Deportivo",
+      "price": 65
+    },
+    {
+      "id": "short-deportivo-hombre",
+      "description": "Short Deportivo Secado Rápido",
+      "imageUrl": "https://images.unsplash.com/photo-1565084888279-aca607ecce0c?w=600&h=800&fit=crop",
+      "imageHint": "sports shorts men quick dry",
+      "category": "Deportivo",
+      "price": 48
+    },
+    {
+      "id": "chaqueta-cortaviento",
+      "description": "Chaqueta Cortaviento Unisex",
+      "imageUrl": "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&h=800&fit=crop",
+      "imageHint": "windbreaker jacket unisex sport",
+      "category": "Deportivo",
+      "price": 115
+    },
+    {
+      "id": "sudadera-hoodie-gris",
+      "description": "Sudadera Hoodie Cómoda Gris",
+      "imageUrl": "https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600&h=800&fit=crop",
+      "imageHint": "grey hoodie sweatshirt unisex",
+      "category": "Deportivo",
+      "price": 88
+    },
+    {
+      "id": "camiseta-gym-mujer",
+      "description": "Camiseta Gym Tank Top Mujer",
+      "imageUrl": "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&h=800&fit=crop",
+      "imageHint": "women gym tank top workout",
+      "category": "Deportivo",
+      "price": 42
+    },
+    {
+      "id": "conjunto-yoga-mujer",
+      "description": "Conjunto Yoga 2 Piezas Mujer",
+      "imageUrl": "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&h=800&fit=crop",
+      "imageHint": "yoga set leggings sports bra women",
+      "category": "Deportivo",
+      "price": 115
+    },
+    {
+      "id": "polo-deportivo-ninos",
+      "description": "Polo Deportivo Niños Colores",
+      "imageUrl": "https://images.unsplash.com/photo-1604671801908-6f0c6a092c05?w=600&h=800&fit=crop",
+      "imageHint": "kids sports polo shirt colorful",
+      "category": "Deportivo",
+      "price": 38
+    },
+
+    /* ── ACCESORIOS ── */
+    {
+      "id": "correa-cuero-marron",
+      "description": "Correa Cuero Legítimo Marrón",
+      "imageUrl": "https://images.unsplash.com/photo-1624222247344-550fb60fe8ff?w=600&h=800&fit=crop",
+      "imageHint": "leather belt brown men",
+      "category": "Accesorios",
+      "price": 35
+    },
+    {
+      "id": "bufanda-lana-premium",
+      "description": "Bufanda Lana Premium Multicolor",
+      "imageUrl": "https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?w=600&h=800&fit=crop",
+      "imageHint": "wool scarf colorful winter",
+      "category": "Accesorios",
+      "price": 28
+    },
+    {
+      "id": "gorro-tejido-invierno",
+      "description": "Gorro Tejido Lana Invierno",
+      "imageUrl": "https://images.unsplash.com/photo-1510598969022-c4c6c5d05769?w=600&h=800&fit=crop",
+      "imageHint": "knit beanie hat winter wool",
+      "category": "Accesorios",
+      "price": 22
+    },
+    {
+      "id": "bolso-tote-canvas",
+      "description": "Bolso Tote Canvas Mujer",
+      "imageUrl": "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&h=800&fit=crop",
+      "imageHint": "tote bag canvas women",
+      "category": "Accesorios",
+      "price": 55
+    },
+    {
+      "id": "medias-pack-x3",
+      "description": "Medias Pack x3 Algodón Pima",
+      "imageUrl": "https://images.unsplash.com/photo-1586350977771-b3b0abd50c82?w=600&h=800&fit=crop",
+      "imageHint": "socks pack cotton colorful",
+      "category": "Accesorios",
+      "price": 25
+    },
+    {
+      "id": "billetera-cuero-hombre",
+      "description": "Billetera Cuero Slim Hombre",
+      "imageUrl": "https://images.unsplash.com/photo-1627123424574-724758594e93?w=600&h=800&fit=crop",
+      "imageHint": "slim leather wallet men brown",
+      "category": "Accesorios",
+      "price": 45
+    },
+    {
+      "id": "gafas-sol-uv400",
+      "description": "Gafas de Sol UV400 Unisex",
+      "imageUrl": "https://images.unsplash.com/photo-1473496169904-658ba7574b0d?w=600&h=800&fit=crop",
+      "imageHint": "sunglasses uv400 unisex",
+      "category": "Accesorios",
+      "price": 38
+    },
+    {
+      "id": "panuelo-seda-mujer",
+      "description": "Pañuelo Seda Estampado Mujer",
+      "imageUrl": "https://images.unsplash.com/photo-1601924582970-9238bcb495d9?w=600&h=800&fit=crop",
+      "imageHint": "silk scarf women pattern",
+      "category": "Accesorios",
+      "price": 32
+    },
+    {
+      "id": "mochila-casual-unisex",
+      "description": "Mochila Casual Lona Unisex",
+      "imageUrl": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&h=800&fit=crop",
+      "imageHint": "casual canvas backpack unisex",
+      "category": "Accesorios",
+      "price": 72
+    },
+    {
+      "id": "gorra-visera-patli",
+      "description": "Gorra Visera PAT-LI Colección",
+      "imageUrl": "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=600&h=800&fit=crop",
+      "imageHint": "cap baseball hat brand",
+      "category": "Accesorios",
+      "price": 28
+    }
+  ]
+}

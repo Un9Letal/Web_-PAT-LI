@@ -1,0 +1,262 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 214 52% 25%; /* #1e3a5f - Navy Blue */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 221 83% 53%; /* #2563eb - Royal Blue */
+    --secondary-foreground: 210 40% 98%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 38 92% 50%; /* #f59e0b - Amber/Gold */
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.75rem;
+    --success: 160 84% 39%; /* #10b981 - Success Emerald */
+
+    --chart-1: 214 52% 25%;
+    --chart-2: 221 83% 53%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 160 84% 39%;
+    --chart-5: 215 20% 65%;
+
+    --sidebar-background: 214 52% 25%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 221 83% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 214 52% 30%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 214 52% 35%;
+    --sidebar-ring: 221 83% 53%;
+  }
+
+  .dark {
+    --background: 220 20% 10%;
+    --foreground: 210 40% 96%;
+    --card: 220 18% 13%;
+    --card-foreground: 210 40% 96%;
+    --popover: 220 18% 13%;
+    --popover-foreground: 210 40% 96%;
+    --primary: 214 52% 65%;      /* lighter navy for dark bg */
+    --primary-foreground: 220 20% 8%;
+    --secondary: 221 83% 65%;
+    --secondary-foreground: 220 20% 8%;
+    --muted: 220 15% 18%;
+    --muted-foreground: 215 20% 60%;
+    --accent: 38 92% 55%;        /* amber stays */
+    --accent-foreground: 220 20% 8%;
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 220 15% 20%;
+    --input: 220 15% 18%;
+    --ring: 221 83% 65%;
+    --success: 160 70% 45%;
+
+    --sidebar-background: 214 52% 18%;
+    --sidebar-foreground: 210 40% 95%;
+    --sidebar-primary: 221 83% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 214 52% 23%;
+    --sidebar-accent-foreground: 210 40% 95%;
+    --sidebar-border: 214 52% 28%;
+    --sidebar-ring: 221 83% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-body;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-headline font-semibold tracking-tight;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+
+  /* Smooth focus rings */
+  :focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+  }
+
+  /* Text selection */
+  ::selection {
+    background: hsl(var(--accent) / 0.25);
+    color: hsl(var(--primary));
+  }
+}
+
+/* ── Admin panel global polish ─────────────────────────────────── */
+@layer components {
+
+  /* Card with professional hover lift */
+  .admin-card {
+    @apply bg-white rounded-2xl border border-slate-100 shadow-sm transition-all duration-200;
+  }
+  .admin-card:hover {
+    @apply shadow-md;
+    transform: translateY(-1px);
+  }
+
+  /* Stat card KPI - colored accent bar on left */
+  .stat-card {
+    @apply relative bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden transition-all duration-200;
+  }
+  .stat-card:hover {
+    @apply shadow-lg border-slate-200;
+    transform: translateY(-2px);
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--stat-accent, #2563eb);
+    border-radius: 0 4px 4px 0;
+  }
+
+  /* Table polish: zebra stripes + better hover */
+  .admin-table thead tr {
+    @apply bg-slate-50 border-b-2 border-slate-200;
+  }
+  .admin-table thead th {
+    @apply text-[10px] font-black uppercase tracking-wider text-slate-500 px-4 py-3;
+  }
+  .admin-table tbody tr {
+    @apply border-b border-slate-50 transition-colors duration-150;
+  }
+  .admin-table tbody tr:nth-child(even) {
+    @apply bg-slate-50/50;
+  }
+  .admin-table tbody tr:hover {
+    @apply bg-primary/[0.03];
+  }
+  .admin-table tbody td {
+    @apply px-4 py-3 text-sm text-slate-700;
+  }
+
+  /* Section label */
+  .section-label {
+    @apply text-[10px] font-black uppercase tracking-[0.18em] text-slate-400;
+  }
+
+  /* Page header */
+  .page-header {
+    @apply flex flex-col md:flex-row md:items-center justify-between gap-4;
+  }
+  .page-title {
+    @apply text-2xl font-black text-slate-900 tracking-tight leading-none;
+  }
+  .page-subtitle {
+    @apply text-sm text-slate-500 mt-1;
+  }
+
+  /* Metric pill badge */
+  .metric-up {
+    @apply inline-flex items-center gap-1 text-[10px] font-black text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full;
+  }
+  .metric-down {
+    @apply inline-flex items-center gap-1 text-[10px] font-black text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full;
+  }
+  .metric-neutral {
+    @apply inline-flex items-center gap-1 text-[10px] font-black text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full;
+  }
+
+  /* Gradient card accent header */
+  .card-accent-primary   { background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%); }
+  .card-accent-success   { background: linear-gradient(135deg, #059669 0%, #10b981 100%); }
+  .card-accent-amber     { background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%); }
+  .card-accent-violet    { background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%); }
+  .card-accent-rose      { background: linear-gradient(135deg, #e11d48 0%, #f43f5e 100%); }
+  .card-accent-cyan      { background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%); }
+}
+
+/* Global smooth transitions for interactive elements */
+@layer utilities {
+  .transition-smooth {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  /* Glass morphism */
+  .glass {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+  /* Subtle card hover */
+  .card-hover {
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .card-hover:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    transform: translateY(-1px);
+  }
+  /* Glow effects for accent elements */
+  .glow-primary {
+    box-shadow: 0 0 20px rgba(30, 58, 95, 0.15);
+  }
+  .glow-accent {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.25);
+  }
+}
+
+@media print {
+  nav, aside, header, .print\:hidden,
+  [data-sidebar], [data-header] {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+    font-size: 11px;
+    color: #0f172a;
+  }
+  main {
+    padding: 16px !important;
+    overflow: visible !important;
+    max-width: 100% !important;
+  }
+  .shadow-sm, .shadow-lg, .shadow, .shadow-2xl, .shadow-xl {
+    box-shadow: none !important;
+  }
+  /* Forzar colores de fondo en tarjetas para impresión */
+  .bg-emerald-50  { background-color: #ecfdf5 !important; }
+  .bg-blue-50     { background-color: #eff6ff !important; }
+  .bg-violet-50   { background-color: #f5f3ff !important; }
+  .bg-amber-50    { background-color: #fffbeb !important; }
+  .bg-red-50      { background-color: #fef2f2 !important; }
+  .bg-slate-50    { background-color: #f8fafc !important; }
+  /* Evitar corte de secciones */
+  .space-y-6 > * { page-break-inside: avoid; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { border: 1px solid #e2e8f0; padding: 6px 10px; font-size: 10px; }
+  /* Mostrar elementos de print */
+  .print\:block { display: block !important; }
+}

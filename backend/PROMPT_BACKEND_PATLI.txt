@@ -1,0 +1,505 @@
+# 🤖 PROMPT: Backend Node.js — Sistema Web con Chatbot Generativo para Gestión de Ventas (PAT-LI)
+
+## CONTEXTO DEL PROYECTO
+
+Eres un desarrollador backend senior. Debes construir el backend de un **MVP** para un sistema web con chatbot generativo basado en IA, orientado a optimizar la **atención al cliente y gestión de ventas** de la empresa comercial PAT-LI (venta minorista textil, Ica - Perú).
+
+El sistema debe:
+- Integrar un chatbot generativo usando la API de OpenAI (GPT-4o o similar)
+- Gestionar ventas, clientes, productos e inventario
+- Registrar conversaciones del chatbot y evaluar satisfacción
+- Dar soporte multicanal (web, WhatsApp futuro)
+- Ser medible: tiempo de respuesta, eficiencia de ventas, satisfacción del cliente
+
+---
+
+## REQUERIMIENTOS FUNCIONALES (RF)
+
+| ID   | Módulo             | Descripción |
+|------|--------------------|-------------|
+| RF01 | Autenticación      | Login/logout con JWT, roles: admin, vendedor |
+| RF02 | Chatbot            | Endpoint que recibe mensaje del cliente y responde vía OpenAI API (GPT). Registra conversación y mensajes en BD |
+| RF03 | Clientes           | CRUD de clientes. Registro automático desde chatbot si es nuevo |
+| RF04 | Clientes Potenciales | CRUD de leads/prospectos con nivel de interés (frío/tibio/caliente) y estado de conversión |
+| RF05 | Productos          | CRUD de productos con categorías, stock e imágenes |
+| RF06 | Ventas             | Registrar ventas con detalle, método de pago, estado |
+| RF07 | Inventario         | Registrar movimientos de entrada/salida de stock |
+| RF08 | Consultas          | Registro de consultas del cliente (tipo, canal, estado) |
+| RF09 | Seguimiento        | Registro de observaciones del vendedor sobre clientes |
+| RF10 | Satisfacción       | Registro de calificación y comentario post-venta |
+| RF11 | Evaluación Sistema | Métricas: tiempo de respuesta promedio, eficiencia ventas, satisfacción |
+| RF12 | Dashboard          | Endpoints con KPIs: ventas del día, consultas atendidas, tiempo promedio chatbot |
+
+---
+
+## REQUERIMIENTOS NO FUNCIONALES (RNF)
+
+| ID    | Descripción |
+|-------|-------------|
+| RNF01 | **Seguridad**: Autenticación JWT, bcrypt para passwords, validación de inputs con Joi/Zod |
+| RNF02 | **Escalabilidad**: Arquitectura modular por capas (routes → controllers → services → repositories) |
+| RNF03 | **Rendimiento**: Respuesta del chatbot < 3s en condiciones normales. Cache básico con node-cache para productos |
+| RNF04 | **Mantenibilidad**: Código limpio, separación de responsabilidades, variables de entorno con dotenv |
+| RNF05 | **Disponibilidad**: Manejo de errores global con middleware centralizado, logs con morgan o winston |
+| RNF06 | **Portabilidad**: Dockerizable (incluir Dockerfile y docker-compose) |
+| RNF07 | **Trazabilidad**: Cada conversación del chatbot guarda timestamps y tiempo de respuesta para métricas |
+| RNF08 | **Interoperabilidad**: API RESTful, respuestas JSON estándar `{ success, data, message }` |
+
+---
+
+## STACK TECNOLÓGICO
+
+```
+Runtime:       Node.js 20+
+Framework:     Express.js
+ORM/DB:        Sequelize + MySQL (base de datos ya diseñada)
+Auth:          JWT (jsonwebtoken) + bcryptjs
+Validación:    Joi
+Chatbot AI:    OpenAI Node SDK (gpt-4o-mini para MVP)
+Variables ENV: dotenv
+Logs:          Morgan (HTTP) + Winston (app)
+Tests básicos: Jest + Supertest (solo módulos críticos)
+Contenedor:    Docker + docker-compose
+```
+
+---
+
+## ESTRUCTURA DE CARPETAS
+
+```
+backend/
+├── src/
+│   ├── config/
+│   │   ├── database.js          # Conexión Sequelize + MySQL
+│   │   ├── openai.js            # Cliente OpenAI configurado
+│   │   └── logger.js            # Winston logger
+│   │
+│   ├── middlewares/
+│   │   ├── auth.middleware.js   # Verificar JWT
+│   │   ├── role.middleware.js   # Verificar rol (admin/vendedor)
+│   │   ├── validate.middleware.js # Validar body con Joi schema
+│   │   └── error.middleware.js  # Handler global de errores
+│   │
+│   ├── modules/
+│   │   ├── auth/
+│   │   │   ├── auth.routes.js
+│   │   │   ├── auth.controller.js
+│   │   │   ├── auth.service.js
+│   │   │   └── auth.schema.js       # Esquema Joi
+│   │   │
+│   │   ├── usuarios/
+│   │   │   ├── usuario.routes.js
+│   │   │   ├── usuario.controller.js
+│   │   │   ├── usuario.service.js
+│   │   │   ├── usuario.model.js     # Modelo Sequelize
+│   │   │   └── usuario.schema.js
+│   │   │
+│   │   ├── clientes/
+│   │   │   ├── cliente.routes.js
+│   │   │   ├── cliente.controller.js
+│   │   │   ├── cliente.service.js
+│   │   │   └── cliente.model.js
+│   │   │
+│   │   ├── clientes-potenciales/
+│   │   │   ├── potencial.routes.js
+│   │   │   ├── potencial.controller.js
+│   │   │   ├── potencial.service.js
+│   │   │   └── potencial.model.js
+│   │   │
+│   │   ├── productos/
+│   │   │   ├── producto.routes.js
+│   │   │   ├── producto.controller.js
+│   │   │   ├── producto.service.js
+│   │   │   └── producto.model.js
+│   │   │
+│   │   ├── categorias/
+│   │   │   ├── categoria.routes.js
+│   │   │   ├── categoria.controller.js
+│   │   │   ├── categoria.service.js
+│   │   │   └── categoria.model.js
+│   │   │
+│   │   ├── ventas/
+│   │   │   ├── venta.routes.js
+│   │   │   ├── venta.controller.js
+│   │   │   ├── venta.service.js
+│   │   │   ├── venta.model.js
+│   │   │   └── detalle-venta.model.js
+│   │   │
+│   │   ├── inventario/
+│   │   │   ├── inventario.routes.js
+│   │   │   ├── inventario.controller.js
+│   │   │   ├── inventario.service.js
+│   │   │   └── inventario.model.js
+│   │   │
+│   │   ├── consultas/
+│   │   │   ├── consulta.routes.js
+│   │   │   ├── consulta.controller.js
+│   │   │   ├── consulta.service.js
+│   │   │   └── consulta.model.js
+│   │   │
+│   │   ├── seguimiento/
+│   │   │   ├── seguimiento.routes.js
+│   │   │   ├── seguimiento.controller.js
+│   │   │   ├── seguimiento.service.js
+│   │   │   └── seguimiento.model.js
+│   │   │
+│   │   ├── satisfaccion/
+│   │   │   ├── satisfaccion.routes.js
+│   │   │   ├── satisfaccion.controller.js
+│   │   │   ├── satisfaccion.service.js
+│   │   │   └── satisfaccion.model.js
+│   │   │
+│   │   ├── chatbot/
+│   │   │   ├── chatbot.routes.js
+│   │   │   ├── chatbot.controller.js
+│   │   │   ├── chatbot.service.js       # Lógica principal IA
+│   │   │   ├── conversacion.model.js
+│   │   │   └── mensaje.model.js
+│   │   │
+│   │   └── dashboard/
+│   │       ├── dashboard.routes.js
+│   │       ├── dashboard.controller.js
+│   │       └── dashboard.service.js     # KPIs y métricas
+│   │
+│   ├── utils/
+│   │   ├── response.helper.js   # { success, data, message }
+│   │   ├── pagination.helper.js
+│   │   └── date.helper.js
+│   │
+│   └── app.js                   # Express app setup
+│
+├── .env.example
+├── .gitignore
+├── Dockerfile
+├── docker-compose.yml
+├── package.json
+└── server.js                    # Entry point
+```
+
+---
+
+## INSTRUCCIONES DE GENERACIÓN (paso a paso)
+
+### PASO 1 — Scaffolding y configuración base
+
+Genera los siguientes archivos con código completo y funcional:
+
+**`package.json`** con dependencias:
+```json
+{
+  "dependencies": {
+    "express": "^4.18",
+    "sequelize": "^6.35",
+    "mysql2": "^3.6",
+    "jsonwebtoken": "^9.0",
+    "bcryptjs": "^2.4",
+    "joi": "^17.11",
+    "dotenv": "^16.3",
+    "morgan": "^1.10",
+    "winston": "^3.11",
+    "openai": "^4.20",
+    "cors": "^2.8",
+    "helmet": "^7.1",
+    "express-rate-limit": "^7.1",
+    "node-cache": "^5.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0",
+    "jest": "^29.7",
+    "supertest": "^6.3"
+  }
+}
+```
+
+**`.env.example`**:
+```
+PORT=3000
+NODE_ENV=development
+
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=sistema_chatbot_ventas
+DB_USER=root
+DB_PASSWORD=
+
+JWT_SECRET=tu_clave_secreta_muy_larga
+JWT_EXPIRES_IN=8h
+
+OPENAI_API_KEY=sk-...
+OPENAI_MODEL=gpt-4o-mini
+OPENAI_MAX_TOKENS=500
+
+SYSTEM_PROMPT="Eres un asistente de ventas de la empresa PAT-LI, especializada en productos textiles en Ica, Perú. Ayudas a los clientes con información de productos, precios, disponibilidad y proceso de compra. Sé amable, conciso y útil. Si el cliente quiere comprar, solicita sus datos de contacto."
+```
+
+---
+
+### PASO 2 — Configuración de BD y OpenAI
+
+**`src/config/database.js`**: Conexión Sequelize con pool de conexiones, `.sync({ alter: false })` en producción, `.sync({ force: false })` en desarrollo.
+
+**`src/config/openai.js`**: Instancia del cliente OpenAI configurado desde variables de entorno.
+
+---
+
+### PASO 3 — Modelos Sequelize
+
+Genera un modelo por cada tabla de la base de datos. Usa `define()` con los campos exactos del script SQL. Incluye asociaciones (`belongsTo`, `hasMany`) al final de cada modelo. Los modelos son:
+
+- `Usuario` (tabla: usuarios) — con campo `password` excluido del `toJSON()`
+- `Rol` (tabla: roles)
+- `Cliente` (tabla: clientes)
+- `ClientePotencial` (tabla: clientes_potenciales)
+- `Categoria` (tabla: categorias)
+- `Producto` (tabla: productos)
+- `Venta` (tabla: ventas)
+- `DetalleVenta` (tabla: detalle_ventas)
+- `Consulta` (tabla: consultas)
+- `ChatbotConversacion` (tabla: chatbot_conversaciones)
+- `ChatbotMensaje` (tabla: chatbot_mensajes)
+- `SeguimientoCliente` (tabla: seguimiento_clientes)
+- `SatisfaccionCliente` (tabla: satisfaccion_cliente)
+- `EvaluacionSistema` (tabla: evaluacion_sistema)
+- `InventarioMovimiento` (tabla: inventario_movimientos)
+
+---
+
+### PASO 4 — Middlewares
+
+**`auth.middleware.js`**: Extrae Bearer token del header, verifica con `jwt.verify()`. Si es inválido retorna 401. Adjunta `req.user = payload`.
+
+**`role.middleware.js`**: Factory `requireRole(...roles)` que verifica `req.user.rol` contra los roles permitidos. Retorna 403 si no autorizado.
+
+**`validate.middleware.js`**: Recibe un schema Joi, valida `req.body`. Si hay error retorna 422 con detalles de validación.
+
+**`error.middleware.js`**: Captura todos los errores, loguea con winston, responde `{ success: false, message }` con código apropiado.
+
+---
+
+### PASO 5 — Módulo CHATBOT (el más importante)
+
+**`chatbot.service.js`** — Lógica completa:
+
+```javascript
+// Flujo del servicio:
+// 1. Recibir { mensaje, id_cliente, id_conversacion? }
+// 2. Si no hay id_conversacion → crear nueva en chatbot_conversaciones
+// 3. Guardar mensaje del cliente en chatbot_mensajes (emisor: 'cliente')
+// 4. Recuperar historial de la conversación (últimos 10 mensajes)
+// 5. Construir array de messages para OpenAI:
+//    - system: SYSTEM_PROMPT con contexto de productos disponibles
+//    - messages: historial mapeado
+//    - user: mensaje actual
+// 6. Llamar openai.chat.completions.create()
+// 7. Medir tiempo de respuesta
+// 8. Guardar respuesta en chatbot_mensajes (emisor: 'bot')
+// 9. Actualizar tiempo_respuesta_promedio en la conversación
+// 10. Retornar { respuesta, id_conversacion, tiempo_respuesta_ms }
+```
+
+**Contexto dinámico**: Antes de llamar a OpenAI, el servicio debe consultar los primeros 10 productos activos de la BD e inyectarlos en el system prompt como contexto:
+```
+Productos disponibles: [nombre - S/precio - stock unidades]
+```
+
+**`chatbot.routes.js`**:
+```
+POST /api/chatbot/mensaje       — enviar mensaje (público o con cliente_id)
+GET  /api/chatbot/conversacion/:id  — historial de conversación (auth)
+GET  /api/chatbot/conversaciones    — listar conversaciones (auth, vendedor+)
+POST /api/chatbot/conversacion/:id/cerrar  — cerrar conversación (auth)
+```
+
+---
+
+### PASO 6 — Módulos REST estándar
+
+Para cada módulo genera routes + controller + service con el patrón:
+
+**Patrón controller**:
+```javascript
+// Usa try/catch en cada método
+// Llama al service
+// Responde con responseHelper: success(res, data, message, statusCode)
+// En error: next(error)
+```
+
+**Patrón service**:
+```javascript
+// Toda lógica de negocio aquí
+// Usa modelos Sequelize (findAll, findByPk, create, update, destroy)
+// Nunca retorna Response, solo datos o lanza errores
+```
+
+**Endpoints por módulo**:
+
+```
+AUTH
+POST /api/auth/login
+POST /api/auth/register  (solo admin)
+
+USUARIOS
+GET    /api/usuarios          (admin)
+POST   /api/usuarios          (admin)
+PUT    /api/usuarios/:id      (admin)
+DELETE /api/usuarios/:id      (admin)
+
+CLIENTES
+GET    /api/clientes
+GET    /api/clientes/:id
+POST   /api/clientes
+PUT    /api/clientes/:id
+DELETE /api/clientes/:id      (soft delete: estado=0)
+
+CLIENTES POTENCIALES
+GET    /api/potenciales
+POST   /api/potenciales
+PUT    /api/potenciales/:id
+POST   /api/potenciales/:id/convertir  (convierte a cliente real)
+
+PRODUCTOS
+GET    /api/productos          (público — usado por chatbot)
+GET    /api/productos/:id
+POST   /api/productos          (admin)
+PUT    /api/productos/:id      (admin)
+DELETE /api/productos/:id      (admin, soft delete)
+
+CATEGORIAS
+GET    /api/categorias
+POST   /api/categorias         (admin)
+PUT    /api/categorias/:id     (admin)
+
+VENTAS
+GET    /api/ventas
+GET    /api/ventas/:id
+POST   /api/ventas             (registra venta + detalle + descuenta stock)
+PUT    /api/ventas/:id/estado  (cambiar estado)
+
+INVENTARIO
+GET    /api/inventario/movimientos
+POST   /api/inventario/movimientos   (entrada/salida manual de stock)
+
+CONSULTAS
+GET    /api/consultas
+POST   /api/consultas
+PUT    /api/consultas/:id/estado
+
+SEGUIMIENTO
+GET    /api/seguimiento/cliente/:id_cliente
+POST   /api/seguimiento
+
+SATISFACCION
+POST   /api/satisfaccion
+GET    /api/satisfaccion/venta/:id_venta
+
+DASHBOARD
+GET    /api/dashboard/kpis           (ventas hoy, consultas, chatbot stats)
+GET    /api/dashboard/ventas-semana
+GET    /api/dashboard/chatbot-metricas  (tiempo promedio, total convs, satisfacción)
+```
+
+---
+
+### PASO 7 — app.js y server.js
+
+**`src/app.js`**:
+```javascript
+// 1. Importar express, cors, helmet, morgan, express-rate-limit
+// 2. Configurar middlewares globales
+// 3. Rate limiting: 100 req/15min general, 20 req/min para /api/chatbot
+// 4. Registrar todas las rutas bajo /api/
+// 5. Middleware 404
+// 6. Middleware de errores global (último)
+// 7. Exportar app
+```
+
+**`server.js`**:
+```javascript
+// 1. Importar dotenv, app, sequelize
+// 2. sequelize.authenticate() → loguear conexión exitosa
+// 3. app.listen(PORT) → loguear servidor activo
+// 4. Manejo de uncaughtException y unhandledRejection
+```
+
+---
+
+### PASO 8 — Docker
+
+**`Dockerfile`**:
+```dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+EXPOSE 3000
+CMD ["node", "server.js"]
+```
+
+**`docker-compose.yml`**: Servicios `api` + `db` (mysql:8.0) con volumen persistente y variables de entorno desde `.env`.
+
+---
+
+### PASO 9 — utils/response.helper.js
+
+```javascript
+// success(res, data, message = 'OK', statusCode = 200)
+// error(res, message, statusCode = 500, errors = null)
+// paginate(res, data, total, page, limit)
+// Siempre retorna: { success: boolean, message: string, data: any }
+```
+
+---
+
+## REGLAS DE GENERACIÓN
+
+1. **Nunca** uses `res.json()` directo en controllers — siempre usa `responseHelper`
+2. **Siempre** valida inputs de escritura (POST/PUT) con schemas Joi
+3. El módulo **chatbot** es el más crítico: mide tiempo de respuesta con `Date.now()`
+4. **Ventas**: Al crear venta, el service debe descontar stock de cada producto en una transacción Sequelize (`t = await sequelize.transaction()`)
+5. **Soft delete**: Clientes y Productos usan `estado = 0`, no `DELETE` físico
+6. Las rutas del chatbot `/api/chatbot/mensaje` deben funcionar **sin autenticación** (para que el widget del frontend funcione libremente)
+7. Logs: usa winston para errores internos, morgan para HTTP access log
+8. Incluye comentarios JSDoc en los services
+
+---
+
+## EJEMPLO DE RESPUESTA ESPERADA DEL CHATBOT
+
+**Request**:
+```json
+POST /api/chatbot/mensaje
+{
+  "mensaje": "¿Tienen camisas de talla L disponibles?",
+  "id_cliente": 3,
+  "id_conversacion": null
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "message": "Respuesta generada",
+  "data": {
+    "respuesta": "¡Hola! Sí, contamos con camisas en talla L. Tenemos modelos desde S/35 hasta S/89. ¿Te gustaría conocer los colores disponibles o preferirías que uno de nuestros vendedores te asesore?",
+    "id_conversacion": 12,
+    "tiempo_respuesta_ms": 1243
+  }
+}
+```
+
+---
+
+## MÉTRICAS PARA LA TESIS (RF11 / RNF07)
+
+El sistema debe capturar automáticamente:
+
+| Indicador | Dónde se guarda | Cómo medirlo |
+|-----------|-----------------|--------------|
+| Tiempo de respuesta chatbot | `chatbot_conversaciones.tiempo_respuesta_promedio` | `Date.now()` antes/después de OpenAI |
+| Eficiencia de ventas | `evaluacion_sistema.eficiencia_ventas` | ventas cerradas / consultas totales × 100 |
+| Satisfacción del cliente | `satisfaccion_cliente.calificacion` | promedio de calificaciones 1-5 |
+| Consultas atendidas | `consultas.estado` | count por estado |
+
+El endpoint `GET /api/dashboard/chatbot-metricas` debe retornar estos 4 KPIs listos para graficar en el frontend.

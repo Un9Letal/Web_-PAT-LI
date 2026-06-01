@@ -1,22 +1,43 @@
-const express = require('express');
-const cors = require('cors');
 require('dotenv').config();
+const app = require('./src/app');
+const { initDatabase } = require('./src/config/database');
+const logger = require('./src/config/logger');
 
-const clientesRoutes = require('./routes/clientesRoutes');
-const productosRoutes = require('./routes/productosRoutes');
-const ventasRoutes = require('./routes/ventasRoutes');
-const chatbotRoutes = require('./routes/chatbotRoutes');
+const PORT = process.env.PORT || 3000;
 
-const app = express();
+/**
+ * Función para iniciar el servidor
+ */
+const startServer = async () => {
+  try {
+    // Inicializar base de datos
+    await initDatabase();
 
-app.use(cors());
-app.use(express.json());
+    // Iniciar servidor
+    app.listen(PORT, () => {
+      logger.info(`🚀 Servidor ejecutándose en puerto ${PORT}`);
+      logger.info(`Ambiente: ${process.env.NODE_ENV || 'development'}`);
+    });
+  } catch (error) {
+    logger.error('✗ Error al iniciar el servidor:', error);
+    process.exit(1);
+  }
+};
 
-app.use('/api/clientes', clientesRoutes);
-app.use('/api/productos', productosRoutes);
-app.use('/api/ventas', ventasRoutes);
-app.use('/api/chatbot', chatbotRoutes);
-
-app.listen(3001, () => {
-  console.log('Servidor corriendo en puerto 3001');
+/**
+ * Manejo de excepciones no capturadas
+ */
+process.on('uncaughtException', (error) => {
+  logger.error('❌ Excepción no capturada:', error);
+  process.exit(1);
 });
+
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('❌ Promesa rechazada no manejada:', reason);
+  process.exit(1);
+});
+
+/**
+ * Iniciar
+ */
+startServer();
