@@ -7,7 +7,7 @@ import {
   LayoutDashboard, ShoppingBag, Package, Users, UserPlus,
   MessageSquare, Bot, Warehouse, BarChart3, Star, LogOut,
   Shirt, Settings, Home, Truck, Activity, RotateCcw, Tag,
-  TrendingUp, ChevronRight,
+  TrendingUp, ChevronRight, Megaphone,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -43,11 +43,17 @@ const NAV_SECTIONS = [
     ],
   },
   {
+    label: 'Marketing',
+    items: [
+      { href: '/campanias',     label: 'Campañas',      icon: Megaphone },
+      { href: '/descuentos',    label: 'Descuentos',    icon: Tag },
+    ],
+  },
+  {
     label: 'Operaciones',
     items: [
       { href: '/proveedores',   label: 'Proveedores',   icon: Truck },
       { href: '/devoluciones',  label: 'Devoluciones',  icon: RotateCcw },
-      { href: '/descuentos',    label: 'Descuentos',    icon: Tag },
       { href: '/actividad',     label: 'Actividad',     icon: Activity },
       { href: '/ajustes',       label: 'Configuración', icon: Settings },
     ],

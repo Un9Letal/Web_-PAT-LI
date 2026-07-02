@@ -18,6 +18,7 @@ import { useAppStore } from '@/store/appStore';
 import { toast } from '@/hooks/use-toast';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import { drawPdfHeader, drawPdfFooter } from '@/lib/pdf-header';
 
 /* ── Datos mock base (representan historial previo) ── */
 const MOCK_RESPONSES = [
@@ -179,18 +180,12 @@ export default function SatisfaccionPage() {
   const handleExport = () => {
     toast({ title: 'Generando reporte de satisfacción…' });
     const doc = new jsPDF() as any;
-    doc.setFillColor(30, 58, 95);
-    doc.rect(0, 0, 210, 38, 'F');
-    doc.setFontSize(18); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold');
-    doc.text('PAT-LI TEXTILES', 20, 15);
-    doc.setFontSize(11); doc.setFont('helvetica', 'normal');
-    doc.text('Reporte de Satisfacción del Cliente', 20, 24);
-    doc.text(`Generado: ${new Date().toLocaleString('es-PE')}`, 20, 32);
+    const startY = drawPdfHeader(doc, 'Satisfacción del Cliente', 'Análisis de encuestas post-compra');
 
     doc.setFontSize(13); doc.setTextColor(30, 58, 95); doc.setFont('helvetica', 'bold');
-    doc.text('Métricas Generales', 20, 52);
+    doc.text('Métricas Generales', 14, startY + 7);
     doc.autoTable({
-      startY: 57,
+      startY: startY + 12,
       head: [['Indicador', 'Valor']],
       body: [
         ['Total Encuestas',   String(allResponses.length)],
@@ -234,8 +229,7 @@ export default function SatisfaccionPage() {
       bodyStyles: { fontSize: 9 },
     });
 
-    doc.setFontSize(8); doc.setTextColor(150);
-    doc.text('PAT-LI Textiles — Reporte de Satisfacción | Confidencial', 20, 290);
+    drawPdfFooter(doc);
     doc.save('satisfaccion_patli.pdf');
     toast({ title: 'Reporte descargado correctamente' });
   };

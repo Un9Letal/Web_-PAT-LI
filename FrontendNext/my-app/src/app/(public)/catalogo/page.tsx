@@ -3,7 +3,7 @@
 
 import { CatalogImage } from '@/components/catalog/CatalogImage';
 import { useState, useMemo } from 'react';
-import { Search, SlidersHorizontal, ShoppingCart, Shirt, Flame, Star, Zap, Sparkles, Loader2, ChevronRight } from 'lucide-react';
+import { Search, SlidersHorizontal, ShoppingCart, Shirt, Flame, Star, Zap, Sparkles, Loader2, ChevronRight, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -43,6 +43,7 @@ export default function CatalogoPage() {
   const [quizStep, setQuizStep]     = useState(1);
   const [quizLoading, setQuizLoading] = useState(false);
   const [quizResult, setQuizResult] = useState<StyleQuizOutput | null>(null);
+  const [outfitOpen, setOutfitOpen] = useState(false);
   const [quizForm, setQuizForm]     = useState({
     occasion:    '',
     budget:      150,
@@ -136,6 +137,42 @@ export default function CatalogoPage() {
 
   const inStockCount  = filteredProducts.filter(p => (stockMap[p.id] ?? 99) > 0).length;
   const outStockCount = filteredProducts.filter(p => (stockMap[p.id] ?? 99) === 0).length;
+
+  /* ── Outfit (productos del quiz) ── */
+  const outfitProducts = useMemo(() => {
+    if (!quizResult) return [];
+    return quizResult.picks
+      .map(pick => {
+        const product = PlaceHolderImages.find(p => p.id === pick.productId);
+        return product ? { product, pick } : null;
+      })
+      .filter((x): x is { product: ImagePlaceholder; pick: typeof quizResult.picks[0] } => x !== null);
+  }, [quizResult]);
+
+  const outfitTotal = outfitProducts.reduce((sum, { product }) => sum + product.price, 0);
+
+  const handleAddOutfitToCart = () => {
+    let added = 0;
+    outfitProducts.forEach(({ product }) => {
+      const stock = stockMap[product.id] ?? 99;
+      if (stock > 0) { addItem(product); added++; }
+    });
+    if (added > 0) {
+      toast({ title: '¡Outfit agregado!', description: `${added} prenda(s) añadida(s) al carrito.`, duration: 2500 });
+    } else {
+      toast({ title: 'Sin stock', description: 'Las prendas del outfit están agotadas.', variant: 'destructive' });
+    }
+    return added;
+  };
+
+  const handleOutfitCheckout = () => {
+    const added = handleAddOutfitToCart();
+    if (added > 0) {
+      setOutfitOpen(false);
+      // Abrir el carrito para completar el pago (sincronizado con ventas en tiempo real)
+      setTimeout(() => window.dispatchEvent(new Event('open-cart')), 150);
+    }
+  };
 
   return (
     <div className="animate-in fade-in duration-700">
@@ -568,11 +605,22 @@ export default function CatalogoPage() {
                 </div>
 
                 {/* Picks */}
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Toca una prenda para ver el detalle</p>
                 <div className="space-y-2">
                   {quizResult.picks.map((pick, i) => {
                     const product = PlaceHolderImages.find(p => p.id === pick.productId);
                     return (
-                      <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 bg-white hover:border-violet-200 transition-colors">
+                      <button
+                        key={i}
+                        onClick={() => {
+                          if (product) {
+                            setQuizOpen(false);
+                            setDetailProduct(product);
+                          }
+                        }}
+                        disabled={!product}
+                        className="w-full flex items-center gap-3 p-3 rounded-xl border border-slate-100 bg-white hover:border-violet-300 hover:bg-violet-50/40 hover:shadow-sm transition-all text-left group disabled:opacity-60 disabled:cursor-default"
+                      >
                         <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center text-violet-700 font-black text-sm shrink-0">
                           {i + 1}
                         </div>
@@ -582,14 +630,18 @@ export default function CatalogoPage() {
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-bold text-slate-800 truncate">{pick.productName}</p>
-                          <p className="text-[10px] text-slate-500 leading-tight">{pick.reason}</p>
+                          <p className="text-xs font-bold text-slate-800 truncate group-hover:text-violet-700 transition-colors">{pick.productName}</p>
+                          <p className="text-[10px] text-slate-500 leading-tight line-clamp-1">{pick.reason}</p>
+                          {product && <p className="text-[11px] font-black text-violet-600 mt-0.5">S/ {product.price.toFixed(2)}</p>}
                         </div>
-                        <div className="text-right shrink-0">
-                          <p className="text-xs font-black text-violet-600">{pick.matchScore}%</p>
-                          <p className="text-[9px] text-slate-400">match</p>
+                        <div className="text-right shrink-0 flex flex-col items-end gap-1">
+                          <div>
+                            <p className="text-xs font-black text-violet-600">{pick.matchScore}%</p>
+                            <p className="text-[9px] text-slate-400">match</p>
+                          </div>
+                          <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-violet-500 group-hover:translate-x-0.5 transition-all" />
                         </div>
-                      </div>
+                      </button>
                     );
                   })}
                 </div>
@@ -602,14 +654,126 @@ export default function CatalogoPage() {
                   </div>
                 )}
 
-                <div className="flex gap-2">
-                  <Button variant="outline" className="flex-1 text-xs" onClick={resetQuiz}>Repetir quiz</Button>
-                  <Button className="flex-1 bg-violet-600 hover:bg-violet-700 text-white text-xs" onClick={() => setQuizOpen(false)}>
-                    Ver catálogo
+                {/* Acciones */}
+                <div className="space-y-2">
+                  <Button
+                    className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:opacity-90 text-white text-sm gap-2 h-11 font-bold shadow-md"
+                    onClick={() => { setQuizOpen(false); setOutfitOpen(true); }}
+                  >
+                    <Sparkles className="h-4 w-4" /> Ver el Outfit Completo
+                    <ChevronRight className="h-4 w-4" />
                   </Button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" className="flex-1 text-xs" onClick={resetQuiz}>Repetir quiz</Button>
+                    <Button
+                      variant="outline"
+                      className="flex-1 text-xs border-violet-200 text-violet-700 hover:bg-violet-50"
+                      onClick={() => {
+                        const firstProduct = PlaceHolderImages.find(p => p.id === quizResult.picks[0]?.productId);
+                        if (firstProduct) setSelectedCategory(firstProduct.category);
+                        setQuizOpen(false);
+                      }}
+                    >
+                      Ver en catálogo
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Outfit Completo Modal ── */}
+      <Dialog open={outfitOpen} onOpenChange={setOutfitOpen}>
+        <DialogContent className="sm:max-w-[560px] max-h-[92vh] overflow-y-auto p-0 gap-0">
+          {/* Header con gradiente */}
+          <div className="bg-gradient-to-br from-violet-600 to-purple-700 text-white p-6 rounded-t-lg">
+            <DialogHeader>
+              <DialogTitle className="text-white flex items-center gap-2 text-xl">
+                <Sparkles className="h-5 w-5 text-amber-300" /> Tu Outfit Completo
+              </DialogTitle>
+              <DialogDescription className="text-white/70">
+                {outfitProducts.length} prendas seleccionadas por IA para tu estilo
+              </DialogDescription>
+            </DialogHeader>
+            {quizResult?.styleAdvice && (
+              <div className="mt-3 bg-white/10 rounded-xl p-3 border border-white/15">
+                <p className="text-xs leading-relaxed italic">{quizResult.styleAdvice}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Lista de prendas */}
+          <div className="p-5 space-y-3">
+            {outfitProducts.map(({ product, pick }, i) => {
+              const stock = stockMap[product.id] ?? 99;
+              const isOut = stock === 0;
+              return (
+                <div key={product.id} className="flex items-center gap-3 p-3 rounded-2xl border border-slate-100 bg-white hover:border-violet-200 transition-colors">
+                  <div className="w-7 h-7 rounded-full bg-violet-100 flex items-center justify-center text-violet-700 font-black text-xs shrink-0">{i + 1}</div>
+                  <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-slate-100">
+                    <CatalogImage src={product.imageUrl} alt={product.description} fill category={product.category} className={isOut ? 'grayscale opacity-50' : ''} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-slate-800 leading-tight">{product.description}</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1 mb-0.5">{pick.reason}</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full">{product.category}</span>
+                      {isOut
+                        ? <span className="text-[10px] font-black text-red-500">AGOTADO</span>
+                        : <span className="text-[10px] font-bold text-emerald-600">En stock</span>}
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-base font-black text-violet-600">S/ {product.price.toFixed(2)}</p>
+                    <button
+                      onClick={() => { setOutfitOpen(false); setDetailProduct(product); }}
+                      className="text-[10px] text-slate-400 hover:text-violet-600 transition-colors mt-0.5"
+                    >
+                      Ver detalle →
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Tip de outfit */}
+            {quizResult?.outfitTip && (
+              <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 flex items-start gap-2">
+                <span className="text-base shrink-0">💡</span>
+                <div>
+                  <p className="text-[10px] font-black text-amber-600 uppercase tracking-wider mb-0.5">Cómo combinarlo</p>
+                  <p className="text-xs text-slate-700">{quizResult.outfitTip}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Total */}
+            <div className="bg-gradient-to-br from-slate-50 to-violet-50/50 border border-violet-100 rounded-2xl p-4 mt-2">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm font-bold text-slate-600">Total del outfit</span>
+                <span className="text-2xl font-black text-violet-700">S/ {outfitTotal.toFixed(2)}</span>
+              </div>
+              <p className="text-[10px] text-slate-400">Precios incluyen IGV · {outfitProducts.length} prendas</p>
+            </div>
+
+            {/* Acciones */}
+            <div className="flex flex-col gap-2 pt-1">
+              <Button
+                onClick={handleOutfitCheckout}
+                className="w-full h-12 bg-gradient-to-r from-violet-600 to-purple-600 hover:opacity-90 text-white font-bold gap-2 shadow-md text-sm"
+              >
+                <ShoppingCart className="h-4 w-4" /> Comprar Outfit Completo · S/ {outfitTotal.toFixed(2)}
+              </Button>
+              <Button
+                onClick={handleAddOutfitToCart}
+                variant="outline"
+                className="w-full h-11 border-violet-200 text-violet-700 hover:bg-violet-50 font-bold gap-2 text-sm"
+              >
+                <Plus className="h-4 w-4" /> Agregar todo al carrito
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

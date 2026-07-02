@@ -35,6 +35,13 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   // Close mobile menu on route change
   useEffect(() => setMobile(false), [pathname]);
 
+  // Permite abrir el carrito desde cualquier parte (ej. outfit del quiz)
+  useEffect(() => {
+    const handler = () => setCartOpen(true);
+    window.addEventListener('open-cart', handler);
+    return () => window.removeEventListener('open-cart', handler);
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
 

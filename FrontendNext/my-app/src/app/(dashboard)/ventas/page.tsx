@@ -26,6 +26,8 @@ import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import { drawPdfHeader, drawPdfFooter } from '@/lib/pdf-header';
+import { generateReceiptPDF } from '@/lib/receipt';
 
 type Venta = { id: string; customer: string; date: string; total: number; status: 'completado' | 'pendiente' | 'cancelado'; method: string; canal: 'Web' | 'Tienda' };
 type VentaFormErrors = { customer?: string; total?: string };
@@ -193,46 +195,44 @@ export default function VentasPage() {
 
   const handleExport = () => {
     const doc = new jsPDF() as any;
-    doc.setFillColor(30, 58, 95); doc.rect(0, 0, 210, 38, 'F');
-    doc.setFontSize(18); doc.setTextColor(255,255,255); doc.setFont('helvetica', 'bold');
-    doc.text('PAT-LI TEXTILES', 20, 15);
-    doc.setFontSize(11); doc.setFont('helvetica', 'normal');
-    doc.text('Historial de Ventas', 20, 24);
-    doc.text(`Exportado: ${new Date().toLocaleString('es-PE')}`, 20, 32);
-    doc.setFillColor(245,158,11); doc.rect(0, 38, 210, 3, 'F');
+    const startY = drawPdfHeader(doc, 'Historial de Ventas', 'Reporte de transacciones');
     doc.setFontSize(12); doc.setTextColor(30,58,95); doc.setFont('helvetica', 'bold');
-    doc.text('Resumen', 20, 52);
-    doc.autoTable({ startY: 57, head: [['Indicador','Valor']], body: [['Total Completadas', `S/ ${totalCompleted.toFixed(2)}`],['Ticket Promedio', `S/ ${ticketPromedio.toFixed(2)}`],['Pedidos Web', String(webVentas)],['Tasa Cancelación', `${cancelRate}%`]], theme: 'grid', headStyles: { fillColor: [30,58,95], textColor: 255 }, tableWidth: 80 });
+    doc.text('Resumen', 14, startY + 7);
+    doc.autoTable({ startY: startY + 12, head: [['Indicador','Valor']], body: [['Total Completadas', `S/ ${totalCompleted.toFixed(2)}`],['Ticket Promedio', `S/ ${ticketPromedio.toFixed(2)}`],['Pedidos Web', String(webVentas)],['Tasa Cancelación', `${cancelRate}%`]], theme: 'grid', headStyles: { fillColor: [30,58,95], textColor: 255 }, tableWidth: 80 });
     let y = doc.lastAutoTable.finalY + 10;
-    doc.text('Detalle de Transacciones', 20, y);
+    doc.text('Detalle de Transacciones', 14, y);
     doc.autoTable({ startY: y + 5, head: [['ID','Cliente','Fecha','Canal','Método','Total','Estado']], body: allTransactions.map(t => [t.id, t.customer, t.date, t.canal, t.method, `S/ ${t.total.toFixed(2)}`, t.status]), theme: 'striped', headStyles: { fillColor: [245,158,11], textColor: 30 }, bodyStyles: { fontSize: 9 } });
-    doc.setFontSize(8); doc.setTextColor(150);
-    doc.text('PAT-LI Textiles — Historial de Ventas | Confidencial', 20, 290);
+    drawPdfFooter(doc);
     doc.save('ventas_patli.pdf');
     toast({ title: 'PDF descargado' });
   };
 
   const downloadReceipt = (t: Venta) => {
-    const doc = new jsPDF() as any;
-    doc.setFillColor(30,58,95); doc.rect(0,0,210,45,'F');
-    doc.setFontSize(22); doc.setTextColor(255,255,255); doc.setFont('helvetica','bold');
-    doc.text('PAT-LI TEXTILES', 105, 18, { align:'center' });
-    doc.setFontSize(10); doc.setFont('helvetica','normal');
-    doc.text('Calle Lima, Ica, Perú', 105, 28, { align:'center' });
-    doc.setFillColor(245,158,11); doc.rect(0,45,210,3,'F');
-    doc.setFontSize(15); doc.setTextColor(30,58,95); doc.setFont('helvetica','bold');
-    doc.text('COMPROBANTE DE VENTA', 105, 62, { align:'center' });
-    doc.autoTable({ startY: 70, body: [['N° Venta:', t.id],['Cliente:', t.customer],['Fecha:', t.date],['Método:', t.method],['Estado:', t.status]], theme: 'plain', columnStyles: { 0: { fontStyle:'bold', cellWidth: 50, textColor:[100,100,100] } }, bodyStyles: { fontSize:11, cellPadding:4 } });
-    const ry = doc.lastAutoTable.finalY + 10;
-    doc.setFillColor(30,58,95); doc.roundedRect(20, ry, 170, 28, 4, 4, 'F');
-    doc.setFontSize(14); doc.setTextColor(255,255,255); doc.setFont('helvetica','normal');
-    doc.text('TOTAL PAGADO:', 40, ry + 12);
-    doc.setFontSize(18); doc.setFont('helvetica','bold');
-    doc.text(`S/ ${t.total.toFixed(2)}`, 150, ry + 18, { align:'right' });
-    doc.setFontSize(9); doc.setTextColor(150);
-    doc.text('Gracias por su preferencia — PAT-LI Textiles', 105, ry + 50, { align:'center' });
-    doc.save(`recibo_${t.id}.pdf`);
-    toast({ title: `Recibo ${t.id} descargado` });
+    // Buscar la venta web real para obtener el detalle de items
+    const webSale = completedSales.find((s) => s.id === t.id);
+
+    const items = webSale && webSale.items.length > 0
+      ? webSale.items.map((it) => ({
+          description: it.description,
+          quantity:    it.quantity,
+          price:       it.price,
+        }))
+      : [{
+          // Venta de tienda física sin desglose: una sola línea
+          description: 'Venta de productos PAT-LI Textiles',
+          quantity:    1,
+          price:       t.total,
+        }];
+
+    generateReceiptPDF({
+      transactionId: t.id,
+      items,
+      total:         t.total,
+      discount:      0,
+      paymentMethod: t.method,
+      customerName:  t.customer !== 'Cliente Web' ? t.customer : undefined,
+    });
+    toast({ title: `Boleta ${t.id} descargada`, description: 'Comprobante electrónico generado conforme a ley (RUC, IGV, serie).' });
   };
 
   const PERIOD_LABELS: Record<PeriodFilter, string> = { hoy: 'Hoy', semana: 'Esta semana', mes: 'Este mes', todo: 'Todo' };

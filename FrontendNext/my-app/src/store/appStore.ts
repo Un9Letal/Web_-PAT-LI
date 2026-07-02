@@ -15,6 +15,24 @@ export interface Coupon {
   activo:    boolean;
 }
 
+export type CampaignStatus = 'borrador' | 'programada' | 'activa' | 'finalizada';
+
+export interface Campaign {
+  id:          string;
+  nombre:      string;
+  tipo:        string;          // BlackFriday, CyberWow, Día de la Madre, etc.
+  descuento:   number;          // % de descuento
+  fechaInicio: string;          // YYYY-MM-DD
+  fechaFin:    string;
+  estado:      CampaignStatus;
+  canales:     string[];        // ['Web', 'Redes Sociales', 'Email']
+  categorias:  string[];        // categorías objetivo
+  metaVentas:  number;          // meta de ventas en S/
+  ventasReales:number;          // ventas atribuidas (mock + reales)
+  copy:        string;          // mensaje de marketing
+  emoji:       string;
+}
+
 export type ChatIntention = 'consulta' | 'compra' | 'reclamo' | 'otro';
 
 export interface ChatMsg {
@@ -181,6 +199,10 @@ interface AppStore {
   toggleCoupon: (id: string) => void;
   deleteCoupon: (id: string) => void;
   useCoupon: (code: string) => Coupon | null;
+  campaigns: Campaign[];
+  addCampaign: (campaign: Omit<Campaign, 'id' | 'ventasReales'>) => void;
+  updateCampaignStatus: (id: string, estado: CampaignStatus) => void;
+  deleteCampaign: (id: string) => void;
 }
 
 const makeId = () => Math.random().toString(36).slice(2, 9);
@@ -202,6 +224,33 @@ const INITIAL_COUPONS: Coupon[] = [
   { id: 'cup5', code: 'EXPIRADO',   discount: 30, type: 'porcentaje', minCompra: 200, expiry: '2025-01-01', usos: 5,  maxUsos: 10, activo: false },
 ];
 
+const INITIAL_CAMPAIGNS: Campaign[] = [
+  {
+    id: 'camp1', nombre: 'Black Friday 2026', tipo: 'Black Friday', descuento: 40,
+    fechaInicio: '2026-11-27', fechaFin: '2026-11-30', estado: 'programada',
+    canales: ['Web', 'Redes Sociales', 'Email'], categorias: ['Caballeros', 'Damas', 'Deportivo'],
+    metaVentas: 25000, ventasReales: 0,
+    copy: '¡El Black Friday llegó a PAT-LI! 40% OFF en toda la colección. Algodón pima premium a precios irrepetibles. Solo por 3 días. 🔥',
+    emoji: '🛍️',
+  },
+  {
+    id: 'camp2', nombre: 'CyberWow Verano', tipo: 'CyberWow', descuento: 30,
+    fechaInicio: '2026-07-15', fechaFin: '2026-07-18', estado: 'finalizada',
+    canales: ['Web', 'Email'], categorias: ['Damas', 'Accesorios'],
+    metaVentas: 15000, ventasReales: 18420,
+    copy: 'CyberWow PAT-LI: 30% de descuento en moda femenina y accesorios. Renueva tu guardarropa con la mejor calidad iqueña. 💜',
+    emoji: '💻',
+  },
+  {
+    id: 'camp3', nombre: 'Día de la Madre', tipo: 'Día de la Madre', descuento: 25,
+    fechaInicio: '2026-05-01', fechaFin: '2026-05-11', estado: 'activa',
+    canales: ['Web', 'Redes Sociales'], categorias: ['Damas', 'Accesorios'],
+    metaVentas: 12000, ventasReales: 8750,
+    copy: 'Regala elegancia esta fecha especial. 25% OFF en prendas y accesorios para mamá. Porque ella merece lo mejor. 💐',
+    emoji: '🌷',
+  },
+];
+
 export const useAppStore = create<AppStore>((set, get) => ({
   completedSales: [],
   surveyResponses: [],
@@ -211,6 +260,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   monthlyGoal: 30000,
   coupons: INITIAL_COUPONS,
   chatConversations: [],
+  campaigns: INITIAL_CAMPAIGNS,
 
   addChatConversation: (conv) =>
     set((state) => ({
@@ -359,4 +409,30 @@ export const useAppStore = create<AppStore>((set, get) => ({
     }
     return coupon;
   },
+
+  addCampaign: (campaign) =>
+    set((state) => ({
+      campaigns: [{ ...campaign, id: makeId(), ventasReales: 0 }, ...state.campaigns],
+      activityLog: [
+        {
+          id: makeId(),
+          module: 'ventas' as ActivityModule,
+          action: 'Campaña creada',
+          detail: `${campaign.nombre} · ${campaign.descuento}% OFF · ${campaign.tipo}`,
+          timestamp: now(),
+          icon: '📣',
+        },
+        ...state.activityLog,
+      ].slice(0, 100),
+    })),
+
+  updateCampaignStatus: (id, estado) =>
+    set((state) => ({
+      campaigns: state.campaigns.map((c) => c.id === id ? { ...c, estado } : c),
+    })),
+
+  deleteCampaign: (id) =>
+    set((state) => ({
+      campaigns: state.campaigns.filter((c) => c.id !== id),
+    })),
 }));

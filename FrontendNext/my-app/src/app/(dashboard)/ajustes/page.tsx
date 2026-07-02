@@ -21,6 +21,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from '@/hooks/use-toast';
 import { useAppStore } from '@/store/appStore';
 import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
+import { drawPdfHeader, drawPdfFooter } from '@/lib/pdf-header';
 
 // ─── Datos del sistema ──────────────────────────────────────────────
 const SYSTEM_VERSION = '2.1.4';
@@ -107,46 +109,39 @@ export default function AjustesPage() {
   };
 
   const handleDownloadPDF = () => {
-    const doc = new jsPDF();
-    doc.setFontSize(22);
-    doc.setTextColor(30, 58, 95);
-    doc.text('PAT-LI TEXTILES - CONFIGURACION', 20, 20);
-    doc.setFontSize(11);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Exportado: ${new Date().toLocaleDateString('es-PE')}`, 20, 30);
-    doc.setDrawColor(245, 158, 11);
-    doc.line(20, 35, 190, 35);
+    const doc = new jsPDF() as any;
+    const startY = drawPdfHeader(doc, 'Configuración del Sistema', 'Ajustes y parámetros');
 
-    doc.setFontSize(15); doc.setTextColor(0, 0, 0);
-    doc.text('Perfil', 20, 45);
-    doc.setFontSize(10);
-    doc.text(`Nombre: ${nombre}`, 20, 53);
-    doc.text(`Correo: ${correo}`, 20, 59);
-    doc.text(`Teléfono: ${telefono}`, 20, 65);
+    let y = startY + 8;
+    doc.setFontSize(13); doc.setTextColor(30, 58, 95); doc.setFont('helvetica', 'bold');
+    doc.text('Perfil', 14, y); y += 7;
+    doc.setFontSize(10); doc.setTextColor(60, 60, 60); doc.setFont('helvetica', 'normal');
+    doc.text(`Nombre: ${nombre}`, 14, y); y += 6;
+    doc.text(`Correo: ${correo}`, 14, y); y += 6;
+    doc.text(`Teléfono: ${telefono}`, 14, y); y += 12;
 
-    doc.setFontSize(15);
-    doc.text('Tienda', 20, 78);
-    doc.setFontSize(10);
-    doc.text(`Sede: ${sede}`, 20, 86);
-    doc.text(`RUC: ${ruc}`, 20, 92);
-    doc.text(`Dirección: ${direccion}`, 20, 98);
+    doc.setFontSize(13); doc.setTextColor(30, 58, 95); doc.setFont('helvetica', 'bold');
+    doc.text('Tienda', 14, y); y += 7;
+    doc.setFontSize(10); doc.setTextColor(60, 60, 60); doc.setFont('helvetica', 'normal');
+    doc.text(`Sede: ${sede}`, 14, y); y += 6;
+    doc.text(`RUC: ${ruc}`, 14, y); y += 6;
+    doc.text(`Dirección: ${direccion}`, 14, y); y += 12;
 
-    doc.setFontSize(15);
-    doc.text('Chatbot IA', 20, 112);
-    doc.setFontSize(10);
-    doc.text(`Tono: ${tono}`, 20, 120);
-    doc.text(`Autoaprendizaje: ${autoaprendizaje ? 'Activo' : 'Inactivo'}`, 20, 126);
-    doc.text(`Umbral: ${umbral}%`, 20, 132);
+    doc.setFontSize(13); doc.setTextColor(30, 58, 95); doc.setFont('helvetica', 'bold');
+    doc.text('Chatbot IA', 14, y); y += 7;
+    doc.setFontSize(10); doc.setTextColor(60, 60, 60); doc.setFont('helvetica', 'normal');
+    doc.text(`Tono: ${tono}`, 14, y); y += 6;
+    doc.text(`Autoaprendizaje: ${autoaprendizaje ? 'Activo' : 'Inactivo'}`, 14, y); y += 6;
+    doc.text(`Umbral: ${umbral}%`, 14, y); y += 12;
 
-    doc.setFontSize(15);
-    doc.text('Sistema', 20, 146);
-    doc.setFontSize(10);
-    doc.text(`Versión: ${SYSTEM_VERSION} (build ${BUILD_DATE})`, 20, 154);
-    doc.text(`Modelo IA: ${GEMINI_MODEL}`, 20, 160);
-    doc.text(`Tokens usados: ${tokensUsed.toLocaleString()} / ${TOTAL_TOKEN_LIMIT.toLocaleString()}`, 20, 166);
+    doc.setFontSize(13); doc.setTextColor(30, 58, 95); doc.setFont('helvetica', 'bold');
+    doc.text('Sistema', 14, y); y += 7;
+    doc.setFontSize(10); doc.setTextColor(60, 60, 60); doc.setFont('helvetica', 'normal');
+    doc.text(`Versión: ${SYSTEM_VERSION} (build ${BUILD_DATE})`, 14, y); y += 6;
+    doc.text(`Modelo IA: ${GEMINI_MODEL}`, 14, y); y += 6;
+    doc.text(`Tokens usados: ${tokensUsed.toLocaleString()} / ${TOTAL_TOKEN_LIMIT.toLocaleString()}`, 14, y);
 
-    doc.setFontSize(9); doc.setTextColor(150, 150, 150);
-    doc.text('Documento generado por PAT-LI Flow — uso interno.', 20, 280);
+    drawPdfFooter(doc);
     doc.save('configuracion_patli.pdf');
     toast({ title: 'PDF descargado', description: 'Archivo guardado en tu dispositivo.' });
   };

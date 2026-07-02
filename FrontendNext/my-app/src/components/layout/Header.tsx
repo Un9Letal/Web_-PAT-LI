@@ -40,6 +40,7 @@ const BREADCRUMBS: Record<string, string> = {
   '/satisfaccion':          'Satisfacción',
   '/devoluciones':          'Devoluciones',
   '/descuentos':            'Descuentos',
+  '/campanias':             'Campañas',
   '/optimizacion':          'Optimización',
   '/actividad':             'Actividad',
   '/ajustes':               'Configuración',

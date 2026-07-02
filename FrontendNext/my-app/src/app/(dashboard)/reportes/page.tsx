@@ -22,6 +22,7 @@ import {
 } from 'recharts';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import { drawPdfHeader, drawPdfFooter } from '@/lib/pdf-header';
 import { toast } from '@/hooks/use-toast';
 import { useAppStore } from '@/store/appStore';
 import { cn } from '@/lib/utils';
@@ -280,21 +281,13 @@ export default function ReportesPage() {
     toast({ title: 'Generando reporte completo…', description: 'Compilando todos los módulos analíticos.' });
     const doc = new jsPDF() as any;
 
-    doc.setFillColor(30, 58, 95);
-    doc.rect(0, 0, 210, 42, 'F');
-    doc.setFillColor(245, 158, 11);
-    doc.rect(0, 42, 210, 3, 'F');
-    doc.setFontSize(22); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold');
-    doc.text('PAT-LI TEXTILES', 20, 17);
-    doc.setFontSize(12); doc.setFont('helvetica', 'normal');
-    doc.text('Reporte de Inteligencia de Negocio — Análisis Completo', 20, 28);
-    doc.text(`Generado: ${new Date().toLocaleString('es-PE')} | Período: ${period}`, 20, 37);
+    const headerY = drawPdfHeader(doc, 'Reporte de Inteligencia', `Análisis completo · Período: ${period}`);
 
     // KPIs
     doc.setFontSize(13); doc.setTextColor(30, 58, 95); doc.setFont('helvetica', 'bold');
-    doc.text('Indicadores Clave de Desempeño (KPIs)', 20, 57);
+    doc.text('Indicadores Clave de Desempeño (KPIs)', 14, headerY + 7);
     doc.autoTable({
-      startY: 62,
+      startY: headerY + 12,
       head: [['KPI', 'Valor Actual', 'Variación', 'Meta']],
       body: [
         ['Ingresos Totales Año',    `S/ ${totalSalesYear.toLocaleString()}`, '+12.8%',  `S/ 320,000`],
@@ -411,12 +404,7 @@ export default function ReportesPage() {
       doc.text(outlookLines, 20, ny);
     }
 
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(8); doc.setTextColor(150);
-      doc.text(`PAT-LI Textiles — Inteligencia de Negocio | Página ${i} de ${pageCount}`, 20, 290);
-    }
+    drawPdfFooter(doc);
     doc.save('reporte_inteligencia_negocio_patli.pdf');
     setTimeout(() => toast({ title: '¡Reporte descargado!', description: 'Archivo guardado correctamente.' }), 1200);
   };

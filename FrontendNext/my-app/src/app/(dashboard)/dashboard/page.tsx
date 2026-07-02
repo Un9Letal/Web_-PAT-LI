@@ -22,6 +22,7 @@ import {
 } from 'recharts';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import { drawPdfHeader, drawPdfFooter } from '@/lib/pdf-header';
 import { toast } from '@/hooks/use-toast';
 import { useAppStore } from '@/store/appStore';
 import { AnimatedNumber } from '@/components/ui/animated-number';
@@ -233,18 +234,12 @@ export default function AdminDashboard() {
     toast({ title: "Generando reporte ejecutivo…", description: "Preparando resumen de KPIs y actividad." });
     const doc = new jsPDF() as any;
 
-    doc.setFillColor(30, 58, 95);
-    doc.rect(0, 0, 210, 40, 'F');
-    doc.setFontSize(20); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold');
-    doc.text('PAT-LI TEXTILES', 20, 18);
-    doc.setFontSize(11); doc.setFont('helvetica', 'normal');
-    doc.text('Reporte Ejecutivo — Centro de Comando', 20, 28);
-    doc.text(`Generado: ${new Date().toLocaleString('es-PE')}`, 20, 36);
+    const startY = drawPdfHeader(doc, 'Reporte Ejecutivo', 'Centro de Comando — Resumen del Mes');
 
     doc.setFontSize(13); doc.setTextColor(30, 58, 95); doc.setFont('helvetica', 'bold');
-    doc.text('KPIs del Mes', 20, 55);
+    doc.text('KPIs del Mes', 14, startY + 7);
     doc.autoTable({
-      startY: 60,
+      startY: startY + 12,
       head: [['Indicador', 'Valor', 'Meta']],
       body: [
         ['Ventas del Mes', `S/ ${totalRevenue.toLocaleString()}`, `S/ ${monthlyGoal.toLocaleString()}`],
@@ -293,12 +288,7 @@ export default function AdminDashboard() {
       bodyStyles: { fontSize: 9 },
     });
 
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(8); doc.setTextColor(150);
-      doc.text(`PAT-LI Textiles — Confidencial | Página ${i} de ${pageCount}`, 20, 290);
-    }
+    drawPdfFooter(doc);
     doc.save('reporte_ejecutivo_patli.pdf');
     toast({ title: "Reporte descargado correctamente" });
   };

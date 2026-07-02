@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import type { SupplierOrderOutput } from '@/ai/flows/admin-supplier-order-flow';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import { drawPdfHeader, drawPdfFooter } from '@/lib/pdf-header';
 
 const SUPPLIERS = [
   {
@@ -118,20 +119,12 @@ export default function ProveedoresPage() {
     if (!orderResult || !selectedSupplier) return;
     const doc = new jsPDF() as any;
 
-    doc.setFillColor(30, 58, 95);
-    doc.rect(0, 0, 210, 40, 'F');
-    doc.setFillColor(245, 158, 11);
-    doc.rect(0, 40, 210, 3, 'F');
-    doc.setFontSize(20); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold');
-    doc.text('PAT-LI TEXTILES', 20, 16);
-    doc.setFontSize(11); doc.setFont('helvetica', 'normal');
-    doc.text(`Orden de Compra — ${selectedSupplier.name}`, 20, 27);
-    doc.text(`Emitida: ${new Date().toLocaleDateString('es-PE')} | Entrega est.: ${orderResult.estimatedDays} días`, 20, 36);
+    const startY = drawPdfHeader(doc, 'Orden de Compra', `${selectedSupplier.name} · Entrega est.: ${orderResult.estimatedDays} días`);
 
     doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.setFont('helvetica', 'bold');
-    doc.text('Detalle de Artículos', 20, 55);
+    doc.text('Detalle de Artículos', 14, startY + 7);
     doc.autoTable({
-      startY: 60,
+      startY: startY + 12,
       head: [['Producto', 'Prioridad', 'Cant.', 'C. Unit. (S/)', 'Subtotal (S/)']],
       body: orderResult.orderItems.map(item => [
         item.productName,
@@ -160,12 +153,7 @@ export default function ProveedoresPage() {
     const emailLines = doc.splitTextToSize(orderResult.emailBody, 170);
     doc.text(emailLines, 20, y);
 
-    const pages = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pages; i++) {
-      doc.setPage(i);
-      doc.setFontSize(8); doc.setTextColor(150);
-      doc.text(`PAT-LI Textiles — Orden de Compra | Página ${i} de ${pages}`, 20, 290);
-    }
+    drawPdfFooter(doc);
     doc.save(`orden_compra_${selectedSupplier.name.replace(/\s+/g, '_')}.pdf`);
     toast({ title: 'PDF de orden descargado' });
   };

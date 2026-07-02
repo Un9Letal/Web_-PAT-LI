@@ -3,7 +3,8 @@
 
 import { useState, useEffect } from 'react';
 import { ConfettiEffect } from '@/components/ConfettiEffect';
-import { ShoppingCart, Trash2, Plus, Minus, Shirt, Star, CheckCircle2, CreditCard, Banknote, Smartphone, ArrowLeft, Loader2, Building2, Lock, Tag, X } from 'lucide-react';
+import { ShoppingCart, Trash2, Plus, Minus, Shirt, Star, CheckCircle2, CreditCard, Banknote, Smartphone, ArrowLeft, Loader2, Building2, Lock, Tag, X, FileText, Download } from 'lucide-react';
+import { generateReceiptPDF } from '@/lib/receipt';
 import { useCartStore } from '@/store/cartStore';
 import { useAppStore } from '@/store/appStore';
 import { Button } from '@/components/ui/button';
@@ -74,6 +75,14 @@ export function CartSheet({ open, onOpenChange }: CartSheetProps) {
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null);
   const [transactionId, setTransactionId] = useState('');
   const [showConfetti, setShowConfetti] = useState(false);
+
+  // Snapshot de la venta para generar el comprobante después de limpiar el carrito
+  const [saleSnapshot, setSaleSnapshot] = useState<{
+    items: { description: string; quantity: number; price: number }[];
+    total: number;
+    discount: number;
+    couponCode?: string;
+  } | null>(null);
 
   useEffect(() => {
     if (paymentStep === 'success') {
@@ -211,6 +220,14 @@ export function CartSheet({ open, onOpenChange }: CartSheetProps) {
     }));
     const totalSnapshot = finalTotal;
 
+    // Guardar snapshot para el comprobante (antes de limpiar el carrito)
+    setSaleSnapshot({
+      items: itemsSnapshot.map(i => ({ description: i.description, quantity: i.quantity, price: i.price })),
+      total: totalSnapshot,
+      discount: discountAmount,
+      couponCode: appliedCoupon?.code,
+    });
+
     setPaymentStep('processing');
     setTimeout(() => {
       addSale({
@@ -243,8 +260,22 @@ export function CartSheet({ open, onOpenChange }: CartSheetProps) {
     toast({ title: "¡Gracias por tu evaluación!", description: `Calificación: ${rating}/5. ¡Hasta pronto!` });
   };
 
+  const handleDownloadReceipt = () => {
+    if (!saleSnapshot) return;
+    generateReceiptPDF({
+      transactionId,
+      items: saleSnapshot.items,
+      total: saleSnapshot.total,
+      discount: saleSnapshot.discount,
+      paymentMethod: selectedMethod ?? 'Efectivo',
+      couponCode: saleSnapshot.couponCode,
+    });
+    toast({ title: 'Comprobante descargado', description: 'Tu boleta de venta electrónica se ha generado correctamente.' });
+  };
+
   const handleCloseAll = () => {
     resetPayment();
+    setSaleSnapshot(null);
     onOpenChange(false);
   };
 
@@ -637,9 +668,22 @@ export function CartSheet({ open, onOpenChange }: CartSheetProps) {
                     <Badge variant="outline">{selectedMethod}</Badge>
                   </div>
                   <Separator />
+                  {/* Desglose con IGV (boleta peruana) */}
+                  {saleSnapshot && (
+                    <>
+                      <div className="flex justify-between text-xs text-slate-500">
+                        <span>Op. Gravada</span>
+                        <span>S/ {(saleSnapshot.total / 1.18).toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-xs text-slate-500">
+                        <span>I.G.V. (18%)</span>
+                        <span>S/ {(saleSnapshot.total - saleSnapshot.total / 1.18).toFixed(2)}</span>
+                      </div>
+                    </>
+                  )}
                   <div className="flex justify-between">
                     <span className="font-bold">Total pagado</span>
-                    <span className="font-black text-primary text-lg">S/ {total.toFixed(2)}</span>
+                    <span className="font-black text-primary text-lg">S/ {(saleSnapshot?.total ?? total).toFixed(2)}</span>
                   </div>
                   {selectedMethod === 'Efectivo' && change > 0 && (
                     <div className="flex justify-between text-sm">
@@ -648,6 +692,19 @@ export function CartSheet({ open, onOpenChange }: CartSheetProps) {
                     </div>
                   )}
                 </div>
+
+                {/* Botón de comprobante */}
+                <button
+                  onClick={handleDownloadReceipt}
+                  className="w-full flex items-center justify-center gap-2 bg-white border-2 border-primary/20 text-primary font-bold rounded-xl py-3 hover:bg-primary/5 hover:border-primary/40 transition-all text-sm group"
+                >
+                  <FileText className="h-4 w-4" />
+                  Descargar Boleta de Venta Electrónica
+                  <Download className="h-3.5 w-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
+                </button>
+                <p className="text-[10px] text-slate-400 text-center -mt-2">
+                  Comprobante válido con RUC, IGV y serie conforme a SUNAT
+                </p>
               </div>
               <DialogFooter>
                 <Button className="w-full bg-primary" onClick={() => setPaymentStep('satisfaction')}>
