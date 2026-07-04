@@ -203,6 +203,7 @@ interface AppStore {
   addCampaign: (campaign: Omit<Campaign, 'id' | 'ventasReales'>) => void;
   updateCampaignStatus: (id: string, estado: CampaignStatus) => void;
   deleteCampaign: (id: string) => void;
+  attributeSaleToCampaigns: (saleTotal: number, categories: string[]) => void;
 }
 
 const makeId = () => Math.random().toString(36).slice(2, 9);
@@ -435,4 +436,31 @@ export const useAppStore = create<AppStore>((set, get) => ({
     set((state) => ({
       campaigns: state.campaigns.filter((c) => c.id !== id),
     })),
+
+  // Atribuye una venta a la mejor campaña activa cuyas categorías coincidan
+  attributeSaleToCampaigns: (saleTotal, categories) =>
+    set((state) => {
+      const activas = state.campaigns.filter(
+        (c) => c.estado === 'activa' && c.categorias.some((cat) => categories.includes(cat))
+      );
+      if (activas.length === 0) return {};
+      // Atribuir a la campaña activa de mayor descuento (evita doble conteo)
+      const best = activas.reduce((b, c) => (c.descuento > b.descuento ? c : b));
+      return {
+        campaigns: state.campaigns.map((c) =>
+          c.id === best.id ? { ...c, ventasReales: c.ventasReales + saleTotal } : c
+        ),
+        activityLog: [
+          {
+            id: makeId(),
+            module: 'ventas' as ActivityModule,
+            action: 'Venta atribuida a campaña',
+            detail: `${best.nombre} · +S/ ${saleTotal.toFixed(2)} (${best.descuento}% OFF aplicado)`,
+            timestamp: now(),
+            icon: '📣',
+          },
+          ...state.activityLog,
+        ].slice(0, 100),
+      };
+    }),
 }));

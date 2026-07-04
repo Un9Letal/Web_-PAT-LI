@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { PlaceHolderImages, type ImagePlaceholder } from '@/lib/placeholder-images';
 import { useCartStore } from '@/store/cartStore';
 import { useAppStore } from '@/store/appStore';
+import { getActiveCampaigns, getBestActiveCampaign, applyCampaignDiscount } from '@/lib/campaigns';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { ProductDetailModal } from '@/components/catalog/ProductDetailModal';
@@ -37,6 +38,8 @@ export default function CatalogoPage() {
   const [detailProduct, setDetailProduct] = useState<ImagePlaceholder | null>(null);
   const addItem = useCartStore((s) => s.addItem);
   const storeProducts = useAppStore((s) => s.products);
+  const campaigns = useAppStore((s) => s.campaigns);
+  const activeCampaigns = useMemo(() => getActiveCampaigns(campaigns), [campaigns]);
 
   /* ── Style Quiz state ── */
   const [quizOpen, setQuizOpen]     = useState(false);
@@ -224,6 +227,41 @@ export default function CatalogoPage() {
       </section>
 
       <main className="container mx-auto px-4 py-10 flex-1">
+        {/* ── Banner de campañas activas ── */}
+        {activeCampaigns.length > 0 && (
+          <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            {activeCampaigns.map((camp) => (
+              <div
+                key={camp.id}
+                className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary to-blue-800 text-white p-5 shadow-lg"
+              >
+                <div className="absolute -right-6 -top-6 text-8xl opacity-10 select-none">{camp.emoji}</div>
+                <div className="relative z-10 flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-white/15 flex items-center justify-center text-3xl shrink-0">
+                    {camp.emoji}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge className="bg-accent text-primary font-black text-[9px] px-2">CAMPAÑA ACTIVA</Badge>
+                      <span className="text-[10px] font-black bg-white/20 px-2 py-0.5 rounded-full">{camp.descuento}% OFF</span>
+                    </div>
+                    <h3 className="font-black text-lg leading-tight">{camp.nombre}</h3>
+                    <p className="text-[11px] text-white/70 line-clamp-1 mt-0.5">
+                      {camp.descuento}% de descuento en: {camp.categorias.join(', ')}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setSelectedCategory(camp.categorias[0])}
+                    className="shrink-0 bg-accent text-primary text-xs font-black px-4 py-2 rounded-xl hover:bg-accent/90 transition-colors flex items-center gap-1"
+                  >
+                    Ver <ChevronRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar filtros */}
           <aside className="w-full md:w-60 shrink-0 space-y-6">
@@ -331,6 +369,8 @@ export default function CatalogoPage() {
                   const isBestSeller = BEST_SELLERS.has(product.id);
                   const isNew = NEW_ARRIVALS.has(product.id);
                   const isOutOfStock = stock === 0;
+                  const campaign = getBestActiveCampaign(campaigns, product.category);
+                  const discountedPrice = applyCampaignDiscount(product.price, campaign);
                   return (
                     <Card
                       key={product.id}
@@ -367,6 +407,11 @@ export default function CatalogoPage() {
                               <Zap className="h-2.5 w-2.5" /> NUEVO
                             </Badge>
                           )}
+                          {campaign && !isOutOfStock && (
+                            <Badge className="bg-rose-500 text-white font-black text-[9px] shadow-sm gap-1">
+                              {campaign.emoji} -{campaign.descuento}%
+                            </Badge>
+                          )}
                         </div>
                         {/* Stock badge (top right) */}
                         <div className="absolute top-3 right-3">
@@ -381,8 +426,17 @@ export default function CatalogoPage() {
                         </h3>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className="text-xl font-black text-primary">S/ {product.price.toFixed(2)}</span>
-                            <span className="text-xs text-slate-400 line-through">S/ {(product.price * 1.2).toFixed(2)}</span>
+                            {campaign ? (
+                              <>
+                                <span className="text-xl font-black text-rose-600">S/ {discountedPrice.toFixed(2)}</span>
+                                <span className="text-xs text-slate-400 line-through">S/ {product.price.toFixed(2)}</span>
+                              </>
+                            ) : (
+                              <>
+                                <span className="text-xl font-black text-primary">S/ {product.price.toFixed(2)}</span>
+                                <span className="text-xs text-slate-400 line-through">S/ {(product.price * 1.2).toFixed(2)}</span>
+                              </>
+                            )}
                           </div>
                           {/* Stock indicator dots */}
                           {!isOutOfStock && (

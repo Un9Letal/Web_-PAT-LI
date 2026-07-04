@@ -1,10 +1,11 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { ConfettiEffect } from '@/components/ConfettiEffect';
-import { ShoppingCart, Trash2, Plus, Minus, Shirt, Star, CheckCircle2, CreditCard, Banknote, Smartphone, ArrowLeft, Loader2, Building2, Lock, Tag, X, FileText, Download } from 'lucide-react';
+import { ShoppingCart, Trash2, Plus, Minus, Shirt, Star, CheckCircle2, CreditCard, Banknote, Smartphone, ArrowLeft, Loader2, Building2, Lock, Tag, X, FileText, Download, Megaphone } from 'lucide-react';
 import { generateReceiptPDF } from '@/lib/receipt';
+import { getBestActiveCampaign } from '@/lib/campaigns';
 import { useCartStore } from '@/store/cartStore';
 import { useAppStore } from '@/store/appStore';
 import { Button } from '@/components/ui/button';
@@ -69,6 +70,8 @@ export function CartSheet({ open, onOpenChange }: CartSheetProps) {
   const addSurveyResponse = useAppStore((state) => state.addSurveyResponse);
   const updateStock       = useAppStore((state) => state.updateStock);
   const useCoupon         = useAppStore((state) => state.useCoupon);
+  const campaigns         = useAppStore((state) => state.campaigns);
+  const attributeSaleToCampaigns = useAppStore((state) => state.attributeSaleToCampaigns);
 
   // Payment flow
   const [paymentStep, setPaymentStep] = useState<PaymentStep | null>(null);
@@ -109,11 +112,32 @@ export function CartSheet({ open, onOpenChange }: CartSheetProps) {
   const [couponCode, setCouponCode]     = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number; type: 'porcentaje' | 'monto' } | null>(null);
 
-  const discountAmount = appliedCoupon
+  // Descuento automático por campañas activas (aplicado por categoría de cada prenda)
+  type BestCampaign = { nombre: string; emoji: string; descuento: number };
+  const campaignInfo = useMemo<{ discount: number; bestCampaign: BestCampaign | null }>(() => {
+    let discount = 0;
+    let bestCampaign: BestCampaign | null = null;
+    items.forEach((item) => {
+      const camp = getBestActiveCampaign(campaigns, item.category);
+      if (camp) {
+        discount += (item.price * item.quantity * camp.descuento) / 100;
+        if (!bestCampaign || camp.descuento > bestCampaign.descuento) {
+          bestCampaign = { nombre: camp.nombre, emoji: camp.emoji, descuento: camp.descuento };
+        }
+      }
+    });
+    return { discount: +discount.toFixed(2), bestCampaign };
+  }, [items, campaigns]);
+
+  const campaignDiscount = campaignInfo.discount;
+
+  const couponDiscount = appliedCoupon
     ? appliedCoupon.type === 'porcentaje'
       ? (total * appliedCoupon.discount) / 100
       : Math.min(appliedCoupon.discount, total)
     : 0;
+
+  const discountAmount = campaignDiscount + couponDiscount;
   const finalTotal = Math.max(0, total - discountAmount);
 
   const handleApplyCoupon = () => {
@@ -228,6 +252,9 @@ export function CartSheet({ open, onOpenChange }: CartSheetProps) {
       couponCode: appliedCoupon?.code,
     });
 
+    // Categorías compradas (para atribuir la venta a campañas activas)
+    const purchasedCategories = Array.from(new Set(itemsSnapshot.map(i => i.category)));
+
     setPaymentStep('processing');
     setTimeout(() => {
       addSale({
@@ -239,6 +266,8 @@ export function CartSheet({ open, onOpenChange }: CartSheetProps) {
         itemsDescription: itemsSnapshot.map(i => `${i.description} x${i.quantity}`).join(', '),
       });
       updateStock(itemsSnapshot);
+      // Atribuir la venta a campañas activas en tiempo real
+      attributeSaleToCampaigns(totalSnapshot, purchasedCategories);
       clearCart();
       setPaymentStep('success');
     }, 2000);
@@ -382,10 +411,18 @@ export function CartSheet({ open, onOpenChange }: CartSheetProps) {
                     <span className="text-slate-500">Subtotal ({items.reduce((s, i) => s + i.quantity, 0)} artículos)</span>
                     <span className="font-medium">S/ {total.toFixed(2)}</span>
                   </div>
+                  {campaignDiscount > 0 && campaignInfo.bestCampaign && (
+                    <div className="flex justify-between text-sm text-rose-600">
+                      <span className="flex items-center gap-1">
+                        <Megaphone className="h-3 w-3" /> Campaña {campaignInfo.bestCampaign.emoji} {campaignInfo.bestCampaign.nombre}
+                      </span>
+                      <span className="font-bold">−S/ {campaignDiscount.toFixed(2)}</span>
+                    </div>
+                  )}
                   {appliedCoupon && (
                     <div className="flex justify-between text-sm text-emerald-600">
-                      <span>Descuento ({appliedCoupon.code})</span>
-                      <span className="font-bold">−S/ {discountAmount.toFixed(2)}</span>
+                      <span>Cupón ({appliedCoupon.code})</span>
+                      <span className="font-bold">−S/ {couponDiscount.toFixed(2)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-sm">
