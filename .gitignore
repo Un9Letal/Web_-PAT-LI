@@ -1,0 +1,55 @@
+# ─────────────────────────────────────────────────────────
+#  PAT-LI Textiles — .gitignore raíz (red de seguridad global)
+#  Cada subproyecto tiene además su propio .gitignore
+# ─────────────────────────────────────────────────────────
+
+# Variables de entorno (NUNCA subir claves ni API keys)
+.env
+.env.*
+!.env.example
+*.local
+
+# Dependencias
+node_modules/
+**/node_modules/
+
+# Builds
+dist/
+build/
+.next/
+out/
+**/.next/
+**/dist/
+**/build/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+
+# Caché y temporales
+.cache/
+.turbo/
+*.tsbuildinfo
+coverage/
+
+# Base de datos local
+*.sqlite
+*.sqlite3
+*.db
+dumps/
